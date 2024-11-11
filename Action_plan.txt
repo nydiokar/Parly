@@ -1,0 +1,142 @@
+LLM expert focused on parliamentary dynamics, such as debate analysis, member interactions, sentiment profiling, and more. The plan will be structured into modules and classes, designed to ensure that each step is as streamlined as possible, minimizing manual work and focusing on automation wherever possible.
+
+High-Level Overview Plan for Creating an LLM Expert on Parliamentary Dynamics
+Project Goal:
+To build an automated system that can collect, store, analyze, and train a large language model on parliamentary data, focusing on member profiles, roles, speeches, debates, and their overall impact on governance.
+
+Project Modules Overview
+Data Extraction and Collection Module
+Data Storage and Indexing Module
+Data Processing and Preparation Module
+Fine-Tuning the LLM Module
+Query and Response Generation Module
+Evaluation and Iterative Improvement Module
+Additional Feature Modules (Optional Future Enhancements)
+Each module will be divided into specific classes and components to make the workflow structured and easy to manage.
+
+Detailed Modules Breakdown:
+1. Data Extraction and Collection Module
+Goal: Automate the process of extracting data from parliamentary websites, APIs, and XML sources.
+
+Class 1.1: Member Data Scraper
+
+Purpose: Collects basic member data (name, ID, constituency, etc.).
+Features:
+Use Python (requests, BeautifulSoup, or Selenium as needed).
+Fetch all member information from the base URL.
+Class 1.2: Member Profile Collector
+
+Purpose: Fetches data on roles, work, contacts, etc., based on Member IDs.
+Features:
+Auto-generate URLs for roles, contacts, and activities.
+Handles multiple URLs programmatically to fetch XML data for each member.
+Class 1.3: Chamber Interventions and Hansard Collector
+
+Purpose: Collects transcripts of speeches and interventions, as well as voting records.
+Features:
+Automate downloading of daily proceedings (debates, interventions).
+Collect Hansard data for further analysis.
+2. Data Storage and Indexing Module
+Goal: Store collected data efficiently for quick retrieval, indexing, and accessibility.
+
+Class 2.1: Database Manager
+
+Purpose: Manages SQL or NoSQL database to store structured data.
+Features:
+Stores member details, roles, contact info, debates, etc.
+Uses SQLite or PostgreSQL, depending on scalability needs.
+Class 2.2: Indexing Engine
+
+Purpose: Creates an efficient indexing system for all entries to make querying fast.
+Features:
+Index all entries by Member ID, date, topic, sentiment, etc.
+Facilitate retrieval-augmented generation (RAG) later on.
+3. Data Processing and Preparation Module
+Goal: Clean, tokenize, and prepare data for use in fine-tuning an LLM.
+
+Class 3.1: Data Cleaner and Normalizer
+
+Purpose: Prepares raw text data by removing noise, handling different text formats, and normalizing names, titles, etc.
+Features:
+Text cleaning (e.g., remove HTML tags, punctuations, etc.).
+Normalize named entities to ensure consistency across member names and roles.
+Class 3.2: Tokenizer
+
+Purpose: Converts text data into a form suitable for model consumption.
+Features:
+Use Hugging Face Tokenizers to tokenize all text data.
+Stores tokenized outputs for efficient data processing.
+4. Fine-Tuning the LLM Module
+Goal: Fine-tune a pre-trained language model (e.g., LLaMA) on the parliamentary data.
+
+Class 4.1: Training Dataset Preparer
+
+Purpose: Converts processed data into prompt-response pairs.
+Features:
+Create question-answer prompts from the available data (e.g., "What are the roles of Ziad Aboultaif?" "How many times has Ziad Aboultaif spoken about healthcare?").
+Class 4.2: LLM Fine-Tuner
+
+Purpose: Fine-tunes a pre-trained LLM (e.g., LLaMA or GPT-3) on the prepared dataset.
+Features:
+Utilize Hugging Face Trainer API or PEFT for parameter-efficient training.
+Implements GPU acceleration if available.
+Class 4.3: Training Orchestrator
+
+Purpose: Handles training sessions, saving checkpoints, evaluating loss, etc.
+Features:
+Checkpoints at intervals.
+Stores versions of models at different training stages.
+5. Query and Response Generation Module
+Goal: Allow interaction with the fine-tuned LLM to extract meaningful insights about parliament.
+
+Class 5.1: Query Interface
+
+Purpose: Provide an interface to ask questions to the model.
+Features:
+Handles user questions and provides structured outputs.
+Implements a CLI and a web interface using Flask for convenience.
+Class 5.2: Information Retrieval Augmentation
+
+Purpose: Enhances LLM responses with factual data retrieval.
+Features:
+First, check the database for facts, then generate nuanced responses.
+RAG approach to combine the factual and generative strengths.
+6. Evaluation and Iterative Improvement Module
+Goal: Evaluate the model's performance on real-world queries and improve iteratively.
+
+Class 6.1: Evaluation Metrics Calculator
+
+Purpose: Calculate metrics like accuracy, response relevance, and sentiment quality.
+Features:
+Uses predefined prompts and checks model output quality.
+Class 6.2: Feedback Loop Integrator
+
+Purpose: Gather user feedback and incorporate into future versions.
+Features:
+Collects and analyzes user feedback to detect gaps in knowledge.
+Retrain or fine-tune using new data periodically.
+7. Additional Feature Modules (Optional Future Enhancements)
+Goal: Extend the capabilities of the LLM to be even more versatile.
+
+Class 7.1: Sentiment Analysis Integrator
+
+Purpose: Integrates sentiment analysis to assess members' stances on topics.
+Features:
+Utilize pre-trained models like VADER or TextBlob to generate sentiment scores on speeches.
+Class 7.2: Topic Modeling and Profiling
+
+Purpose: Generate profiles for MPs, detailing their activity and interests.
+Features:
+Use Latent Dirichlet Allocation (LDA) to identify key topics of discussion.
+Track an individual’s engagement across different sessions to generate topic-wise interest levels.
+
+
+Overall System Architecture:
+Data Layer: Handles extraction and database storage.
+Processing Layer: Cleans, normalizes, and prepares data.
+Model Layer: Fine-tunes LLM and manages model versions.
+Interaction Layer: Query handling and response generation (UI).
+Feedback and Improvement Layer: Ongoing evaluation and enhancement.
+
+
+
