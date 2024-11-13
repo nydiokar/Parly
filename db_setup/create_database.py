@@ -26,8 +26,6 @@ class Member(Base):
     constituency = Column(String)
     party = Column(String)
     province_name = Column(String)
-    caucus_name = Column(String)
-    preferred_language = Column(String)
 
     # Relationships
     roles = relationship("Role", back_populates="member")
@@ -43,7 +41,6 @@ class Role(Base):
     
     # Common fields for all roles
     role_type = Column(Enum(RoleType))
-    person_honorific = Column(String)  # Official honorific title
     from_date = Column(Date)  # Last time elected/appointed
     to_date = Column(Date)   # End of mandate
     parliament_number = Column(String)
@@ -52,18 +49,20 @@ class Role(Base):
     # MP/Constituency specific
     constituency_name = Column(String)
     constituency_province = Column(String)
-    caucus_name = Column(String)  # Political party
+    party = Column(String)
     
     # Committee specific
     committee_name = Column(String)
-    affiliation_role_name = Column(String)  # Member's role in committee
+    affiliation_role_name = Column(String)
     
     # Parliamentary Associations specific
     organization_name = Column(String)
-    association_role_type = Column(String)  # Association member's role
 
     # Offices and Roles as Parliamentarian specific
     office_role = Column(String)
+    
+    # Election Candidate specific
+    election_result = Column(String)  # Added for election results (Elected/Re-Elected)
 
     __table_args__ = (
         UniqueConstraint(
@@ -130,11 +129,12 @@ class BillProgress(Base):
     # Relationships
     bill = relationship("Bill", back_populates="bill_progress")
 
-# Create all tables
-Base.metadata.create_all(engine)
-
-# Set up session
+# Keep these outside as they're needed for imports
 Session = sessionmaker(bind=engine)
-session = Session()
 
-print("Database setup completed successfully.")
+def init_db():
+    Base.metadata.create_all(engine)
+    print("Database setup completed successfully.")
+
+if __name__ == "__main__":
+    init_db()
