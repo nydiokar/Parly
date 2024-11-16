@@ -4,8 +4,8 @@ BASE_URL = "https://www.ourcommons.ca/Members/en/"
 
 URL_TEMPLATES = {
     "member_profile": BASE_URL + "{search_pattern}/",
-    "member_roles": BASE_URL + "{search_pattern}/roles/",
-    "member_votes": BASE_URL + "{search_pattern}/votes/",
+    "member_roles": BASE_URL + "{search_pattern}/roles",
+    "member_votes": BASE_URL + "{search_pattern}/votes/xml",
     "bills_sponsored": "https://www.parl.ca/legisinfo/en/bills/xml?parlsession=all&sponsor={member_id}&advancedview=true",
     "recent_bills": "https://www.parl.ca/legisinfo/en/overview/json/recentlyintroduced",
     "bill_progress": "https://www.parl.ca/LegisInfo/en/bill/{parliament}-{session}/{bill_type}-{bill_number}/json?view=progress",
