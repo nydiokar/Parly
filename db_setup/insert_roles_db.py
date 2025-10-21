@@ -21,20 +21,36 @@ def get_role_date(role_data):
 def insert_roles_from_json(json_path):
     """Insert roles data from JSON file into the database."""
     session = Session()
-    
+
+    # Load member names from CSV as fallback (for old JSON format)
+    import csv
+    member_names_csv = {}
+    try:
+        with open('data/member_ids.csv', 'r', encoding='utf-8') as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                member_names_csv[row['id']] = row['name']
+    except FileNotFoundError:
+        print("Warning: member_ids.csv not found, will rely on JSON for names")
+
     try:
         with open(json_path, mode='r', encoding='utf-8') as file:
             data = json.load(file)
-            
+
             for member_data in data:
                 member_id = int(member_data['member_id'])
-                search_pattern = member_data['search_pattern']
+                # Try JSON first (new format), fallback to CSV (old format)
+                member_name = member_data.get('member_name') or member_names_csv.get(str(member_id))
                 roles = member_data['roles']
-                
+
                 # Create or get the member
                 member = session.query(Member).filter_by(member_id=member_id).first()
                 if not member:
-                    member = Member(member_id=member_id, name=search_pattern)
+                    # Use member name from JSON or CSV
+                    if not member_name:
+                        print(f"Warning: No name for member {member_id}, skipping")
+                        continue
+                    member = Member(member_id=member_id, name=member_name)
                     session.add(member)
                 
                 # Get MP roles only and sort by date
@@ -70,10 +86,7 @@ def insert_roles_from_json(json_path):
                     
                     # Update member's party from most recent Political Affiliation
                     member.party = party_roles[0].get('affiliation')
-                
-                # Commit after updating member
-                session.commit()
-                
+
                 # Insert all roles for the member
                 for role_data in roles:
                     role_type_str = role_data['role_type'].replace(' ', '_').upper()
@@ -85,23 +98,33 @@ def insert_roles_from_json(json_path):
                     from_date = parse_date(get_role_date(role_data))
                     to_date = parse_date(role_data.get('end_date')) if role_data.get('end_date') else None
                     
-                    role = Role(
+                    # Check if role already exists (duplicate prevention)
+                    existing_role = session.query(Role).filter_by(
                         member_id=member.member_id,
                         role_type=RoleType[role_type_str],
                         from_date=from_date,
-                        to_date=to_date,
                         parliament_number=role_data.get('parliament_number'),
-                        session_number=role_data.get('parliament_session'),
-                        constituency_name=role_data.get('constituency') if 'constituency' in role_data else None,
-                        constituency_province=role_data.get('province') if 'province' in role_data else None,
-                        party=role_data.get('affiliation') if 'affiliation' in role_data else None,
-                        committee_name=role_data.get('committee_name') if 'committee_name' in role_data else None,
-                        affiliation_role_name=role_data.get('role_name') if 'role_name' in role_data else None,
-                        organization_name=role_data.get('organization_name') if 'organization_name' in role_data else None,
-                        office_role=role_data.get('office_role') if 'office_role' in role_data else None,
-                        election_result=role_data.get('result') if role_type_str == 'ELECTION_CANDIDATE' else None
-                    )
-                    session.add(role)
+                        session_number=role_data.get('parliament_session')
+                    ).first()
+
+                    if not existing_role:
+                        role = Role(
+                            member_id=member.member_id,
+                            role_type=RoleType[role_type_str],
+                            from_date=from_date,
+                            to_date=to_date,
+                            parliament_number=role_data.get('parliament_number'),
+                            session_number=role_data.get('parliament_session'),
+                            constituency_name=role_data.get('constituency') if 'constituency' in role_data else None,
+                            constituency_province=role_data.get('province') if 'province' in role_data else None,
+                            party=role_data.get('affiliation') if 'affiliation' in role_data else None,
+                            committee_name=role_data.get('committee_name') if 'committee_name' in role_data else None,
+                            affiliation_role_name=role_data.get('role_name') if 'role_name' in role_data else None,
+                            organization_name=role_data.get('organization_name') if 'organization_name' in role_data else None,
+                            office_role=role_data.get('office_role') if 'office_role' in role_data else None,
+                            election_result=role_data.get('result') if role_type_str == 'ELECTION_CANDIDATE' else None
+                        )
+                        session.add(role)
 
             session.commit()
             print(f"Data from {json_path} has been inserted into the database successfully.")
