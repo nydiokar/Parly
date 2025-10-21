@@ -107,9 +107,12 @@ class ParliamentaryAssociation(Base):
 class Bill(Base):
     __tablename__ = 'bills'
     bill_id = Column(Integer, primary_key=True)
+    legisinfo_bill_id = Column(Integer, unique=True)  # BillId from parl.ca for duplicate prevention
     bill_number = Column(String)
     parliament_number = Column(Integer)
     session_number = Column(Integer)
+    short_title = Column(String)  # Short title of the bill
+    long_title = Column(Text)  # Full title of the bill
     status = Column(String)
     sponsor_id = Column(Integer, ForeignKey('members.member_id'))
     chamber = Column(String)
