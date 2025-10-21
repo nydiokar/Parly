@@ -113,7 +113,8 @@
 
 ### Configuration
 - `pyproject.toml` - Modern dependency management
-- `.gitignore` - Comprehensive exclusions
+- `config.py` - Centralized configuration management
+- `SETUP.md` - Comprehensive setup and usage guide
 - `PROJECT_IMPROVEMENTS.md` - Detailed analysis and recommendations
 - `docs/DATABASE_SCHEMA.md` - Complete database schema documentation
 
@@ -130,10 +131,10 @@
 3. **Schema documentation** - Complete database documentation created
 
 ### 🔄 Remaining Short Term
-4. **Database migrations** - Complete Alembic setup for full schema versioning (currently only has constraint migration)
-5. **Vote schema refactoring** - Implement clean two-table design (Vote + VoteParticipant)
-6. **Configuration management** - Add config.py with environment settings
-7. **Setup documentation** - Create SETUP.md for easy project setup
+4. **Database migrations** - ✅ COMPLETED: Full Alembic setup with schema documentation and baseline migration
+5. **Configuration management** - ✅ COMPLETED: Centralized config.py with environment settings
+6. **Setup documentation** - ✅ COMPLETED: Comprehensive SETUP.md with installation and usage instructions
+7. **Vote schema refactoring** - Implement clean two-table design (Vote + VoteParticipant)
 
 ### 🔄 Medium Term
 8. **API authentication** - Add security if needed for production

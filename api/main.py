@@ -15,26 +15,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import math
 
+from config import settings
 from api.database import get_db
 from api.routes import members, votes, bills
 from db_setup.create_database import Member, Role, Vote, ParliamentaryAssociation, Bill, BillProgress
 
-# Create FastAPI app
+# Create FastAPI app using configuration
 app = FastAPI(
-    title="Parly API",
+    title=f"{settings.app_name} API",
     description="Canadian Parliament Data API - Access parliamentary data including members, votes, and bills",
-    version="1.0.0",
+    version=settings.version,
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# CORS middleware for web clients
+# CORS middleware for web clients using configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.api.cors_origins,
+    allow_credentials=settings.api.cors_allow_credentials,
+    allow_methods=settings.api.cors_allow_methods,
+    allow_headers=settings.api.cors_allow_headers,
 )
 
 # Include routers
@@ -49,8 +50,9 @@ def root():
     API root endpoint with welcome message and available endpoints.
     """
     return {
-        "message": "Welcome to Parly API - Canadian Parliament Data",
-        "version": "1.0.0",
+        "message": f"Welcome to {settings.app_name} API - Canadian Parliament Data",
+        "version": settings.version,
+        "environment": settings.environment,
         "documentation": "/docs",
         "endpoints": {
             "members": "/members",
@@ -135,8 +137,8 @@ def get_province_stats(db: Session = Depends(get_db)):
 
     province_counts = {}
     for member in members:
-        if member.province:
-            province_counts[member.province] = province_counts.get(member.province, 0) + 1
+        if member.province_name:
+            province_counts[member.province_name] = province_counts.get(member.province_name, 0) + 1
 
     return {
         "total_provinces": len(province_counts),
@@ -146,4 +148,9 @@ def get_province_stats(db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host=settings.api.host,
+        port=settings.api.port,
+        reload=settings.api.reload
+    )

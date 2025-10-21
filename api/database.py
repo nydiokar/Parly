@@ -10,16 +10,17 @@ from sqlalchemy.orm import sessionmaker, Session as SQLAlchemySession
 from contextlib import contextmanager
 from typing import Generator
 
-# Use the same database path as the scrapers
-DATABASE_URL = "sqlite:///data/parliament.db"
+from config import settings
 
-# Create engine with connection pooling for API
+# Create engine with connection pooling for API using centralized config
 engine = create_engine(
-    DATABASE_URL,
+    settings.database.url,
     connect_args={"check_same_thread": False},  # Needed for SQLite with FastAPI
     pool_pre_ping=True,  # Verify connections before using
-    pool_size=10,  # Maximum number of connections
-    max_overflow=20  # Additional connections if pool is exhausted
+    pool_size=settings.database.pool_size,
+    max_overflow=settings.database.max_overflow,
+    pool_timeout=settings.database.pool_timeout,
+    pool_recycle=settings.database.pool_recycle
 )
 
 # Create session factory
