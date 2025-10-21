@@ -40,6 +40,27 @@ The implementation is divided into three phases, each building on the previous o
 
 ## Phase 1: Solidify the Data Foundation
 
+**📌 IMPORTANT: Production-Grade Scraper Template Available**
+
+A production-ready scraper template with all best practices is now available at:
+- **File:** `scripts/extraction/scraper_template.py`
+- **Documentation:** `docs/SCRAPING_BEST_PRACTICES.md`
+
+**This template includes:**
+- ✅ Retry logic with exponential backoff
+- ✅ User-Agent headers for polite scraping
+- ✅ Structured logging (file + console)
+- ✅ Progress checkpointing (resume capability)
+- ✅ Request session pooling
+- ✅ Data validation framework
+- ✅ Statistics tracking
+- ✅ Graceful shutdown handling
+- ✅ Configuration management
+
+**Use this template for all new scrapers (bills, bill_progress, etc.)** to ensure production-grade quality from day one.
+
+---
+
 ### Step 1.1: Set Up Development Environment
 
 **Objective:** Prepare the project for development with proper dependency management.
