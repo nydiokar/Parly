@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+"""
+DATABASE INSPECTOR
+==================
+WHAT IT DOES: Lists all database tables and checks parliamentary_associations table
+USAGE: python scripts/inspect_database.py
+OUTPUT: Table list with record counts, parliamentary_associations status
+"""
+
 import sqlite3
 
 conn = sqlite3.connect('data/parliament.db')

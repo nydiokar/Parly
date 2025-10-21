@@ -1,3 +1,12 @@
+git status#!/usr/bin/env python3
+"""
+DATA INTEGRITY VALIDATOR
+=======================
+WHAT IT DOES: Compares scraped JSON data with database to verify ETL process
+USAGE: python scripts/validate_data_integrity.py
+OUTPUT: Member/role counts comparison, match percentage between source and DB
+"""
+
 import sqlite3
 import json
 from datetime import datetime

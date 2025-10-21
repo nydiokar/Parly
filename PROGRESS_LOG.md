@@ -115,6 +115,7 @@
 - `pyproject.toml` - Modern dependency management
 - `config.py` - Centralized configuration management
 - `SETUP.md` - Comprehensive setup and usage guide
+- `ROADMAP.md` - Strategic development roadmap to AI-powered intelligence
 - `PROJECT_IMPROVEMENTS.md` - Detailed analysis and recommendations
 - `docs/DATABASE_SCHEMA.md` - Complete database schema documentation
 
@@ -130,11 +131,16 @@
 2. **API testing** - Full test suite implemented and passing
 3. **Schema documentation** - Complete database documentation created
 
-### 🔄 Remaining Short Term
-4. **Database migrations** - ✅ COMPLETED: Full Alembic setup with schema documentation and baseline migration
-5. **Configuration management** - ✅ COMPLETED: Centralized config.py with environment settings
-6. **Setup documentation** - ✅ COMPLETED: Comprehensive SETUP.md with installation and usage instructions
-7. **Vote schema refactoring** - Implement clean two-table design (Vote + VoteParticipant)
+### 🔄 Next Phase: Intelligence Layer Development
+Following completion of all immediate fixes, the project now moves to **Phase 1** of the comprehensive roadmap outlined in `ROADMAP.md`:
+
+**Immediate Next Steps:**
+1. **Structured data audit** - Verify completeness and identify additional sources (including historical data)
+2. **Basic analytics API** - Statistics, trends, and correlations
+3. **Early LLM integration** - Natural language queries on existing structured data
+4. **Vote schema refactoring** - DEFERRED: Current structure works fine, will revisit if performance issues arise
+
+**Long-term Vision:** AI-powered parliamentary analysis system combining structured data, unstructured text, and machine learning for comprehensive parliamentary intelligence.
 
 ### 🔄 Medium Term
 8. **API authentication** - Add security if needed for production
