@@ -231,18 +231,35 @@ python scripts/db_check.py
 
 ### Step 1.4: Complete the Votes Scraper
 
+**✅ STATUS: COMPLETE** (As of 2025-10-21)
+
 **Objective:** Finish implementing the vote scraping and insertion functionality.
 
-**Current State:** `scripts/extraction/fetch_votes.py` exists but is incomplete.
+**Current State:** `scripts/extraction/votes/fetch_votes.py` has been completely rewritten and is now production-ready.
 
-**Actions:**
+**What Was Done:**
+- ✅ Fully rewritten following proven XML extraction pattern
+- ✅ Incremental loading (checks existing votes, adds only new ones)
+- ✅ Fetches all members from database automatically
+- ✅ Duplicate prevention using vote signatures
+- ✅ Batch commits per member for reliability
+- ✅ 2-second rate limiting
+- ✅ Error handling with rollback
+- ✅ Progress reporting
 
-1. **Create a new, complete votes scraper:**
-   
-   **File:** `scripts/extraction/fetch_votes.py`
-   
+**To Run:**
+```bash
+python scripts/extraction/votes/fetch_votes.py
+```
+
+**If You Need to Recreate or Improve:**
+
+   **File:** `scripts/extraction/votes/fetch_votes.py`
+
+   **Recommended Approach:** Use `scripts/extraction/scraper_template.py` as the base for production-grade features
+
    **Implementation Requirements:**
-   - Read member IDs from `data/member_ids.csv`
+   - Read members from database (not CSV)
    - For each member, fetch votes XML from: `https://www.ourcommons.ca/Members/en/{search_pattern}/votes/xml`
    - Parse XML structure (see DATA_SOURCES.md for format)
    - Insert directly into database `votes` table
