@@ -1,0 +1,144 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "parly"
+version = "1.0.0"
+description = "Canadian Parliament Data Collection and API"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Parly Project"}
+]
+keywords = ["parliament", "canada", "legislation", "api", "data-scraping"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Core scraping dependencies
+    "requests>=2.32.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.0.0",
+
+    # Data processing
+    "pandas>=2.2.0",
+    "numpy>=2.1.0",
+
+    # Database
+    "sqlalchemy>=2.0.36",
+
+    # API framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.28.0",  # For testing FastAPI endpoints
+
+    # Code quality
+    "ruff>=0.8.0",  # Fast Python linter (replaces flake8, black, isort)
+    "mypy>=1.13.0",  # Type checking
+
+    # Development tools
+    "ipython>=8.30.0",
+    "ipdb>=0.13.13",
+]
+
+all = [
+    "parly[dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/parly"
+Repository = "https://github.com/yourusername/parly"
+Documentation = "https://github.com/yourusername/parly/blob/main/README.md"
+
+[project.scripts]
+parly-scrape-members = "scripts.extraction.members.fetch_members:main"
+parly-scrape-votes = "scripts.extraction.votes.fetch_votes:main"
+parly-scrape-bills = "scripts.extraction.bills.fetch_bills:main"
+parly-scrape-bill-progress = "scripts.extraction.bills.fetch_bill_progress:main"
+parly-api = "api.main:main"
+
+[tool.setuptools]
+packages = ["api", "db_setup", "scripts"]
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt"]
+
+# Ruff configuration (modern linter and formatter)
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Ignore unused imports in __init__.py
+
+# MyPy configuration (type checking)
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Set to true for stricter type checking
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers --cov=api --cov=scripts --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["api", "scripts", "db_setup"]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
