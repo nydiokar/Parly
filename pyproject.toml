@@ -38,6 +38,7 @@ dependencies = [
 
     # Database
     "sqlalchemy>=2.0.36",
+    "alembic>=1.13.0",
 
     # API framework
     "fastapi>=0.115.0",
@@ -118,7 +119,7 @@ ignore_missing_imports = true
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --cov=api --cov=scripts --cov-report=term-missing"
+addopts = "-ra -q --strict-markers"
 testpaths = ["tests"]
 pythonpath = ["."]
 

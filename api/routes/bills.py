@@ -105,27 +105,16 @@ def get_bill(bill_id: int, db: Session = Depends(get_db)):
     Includes sponsor information, progress stages, and vote count.
     """
     bill = db.query(Bill).options(
-        joinedload(Bill.sponsor),
-        joinedload(Bill.progress)
+        joinedload(Bill.sponsor)
     ).filter(Bill.bill_id == bill_id).first()
 
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
 
-    # Get vote count for this bill
-    votes_count = db.query(Vote).filter(Vote.bill_number == bill.bill_number).count()
-
-    # Build response
-    sponsor_data = None
-    if bill.sponsor:
-        sponsor_data = {
-            "member_id": bill.sponsor.member_id,
-            "first_name": bill.sponsor.first_name,
-            "last_name": bill.sponsor.last_name,
-            "constituency": bill.sponsor.constituency,
-            "province": bill.sponsor.province,
-            "party": bill.sponsor.party
-        }
+    # Get progress stages for this bill
+    progress_stages_query = db.query(BillProgress).filter(
+        BillProgress.bill_id == bill_id
+    ).order_by(BillProgress.progress_date).all()
 
     progress_stages = [
         {
@@ -134,8 +123,25 @@ def get_bill(bill_id: int, db: Session = Depends(get_db)):
             "status": p.status,
             "progress_date": p.progress_date
         }
-        for p in bill.progress
+        for p in progress_stages_query
     ]
+
+    # Get vote count for this bill (search by topic/subject since no direct bill link)
+    votes_count = db.query(Vote).filter(
+        Vote.vote_topic.like(f"%{bill.short_title}%") |
+        Vote.subject.like(f"%{bill.short_title}%")
+    ).count()
+
+    # Build response
+    sponsor_data = None
+    if bill.sponsor:
+        sponsor_data = {
+            "member_id": bill.sponsor.member_id,
+            "name": bill.sponsor.name,
+            "constituency": bill.sponsor.constituency,
+            "province_name": bill.sponsor.province_name,
+            "party": bill.sponsor.party
+        }
 
     return {
         "bill_id": bill.bill_id,

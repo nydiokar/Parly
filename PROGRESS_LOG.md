@@ -3,8 +3,9 @@
 ## Current Status
 
 **Database**: Fully populated with Canadian parliamentary data
-**API**: Running on http://localhost:8000
-**Documentation**: http://localhost:8000/docs
+**API**: ✅ Fully functional on http://localhost:8000 with all tests passing
+**Documentation**: http://localhost:8000/docs + schema documentation
+**Testing**: ✅ 25/25 API tests passing
 
 ### Database Contents
 | Table | Records | Status |
@@ -21,6 +22,9 @@
 - ✅ Complete FastAPI REST API with all endpoints
 - ✅ Interactive API documentation
 - ✅ Project improvement analysis (PROJECT_IMPROVEMENTS.md)
+- ✅ **Schema compatibility fixes** - API models match database schema
+- ✅ **Comprehensive testing** - Full API test suite (25/25 passing)
+- ✅ **Database schema documentation** (docs/DATABASE_SCHEMA.md)
 
 ---
 
@@ -67,6 +71,30 @@
    - Prioritized improvements
    - Best practices documentation
 
+### Schema Compatibility Fixes (2025-10-21)
+
+1. **Resolved critical schema mismatches**:
+   - Fixed `Member.province` → `province_name` field mapping
+   - Fixed `Role.start_date/end_date` → `from_date/to_date` field mapping
+   - Fixed `Vote.decision` → `vote_result` field mapping
+   - Updated filter models to match actual database fields
+
+2. **API functionality restored**:
+   - All Pydantic models now match actual database schema
+   - Vote aggregation logic fixed for detailed vote views
+   - Bill progress loading corrected (separate table relationship)
+   - Pagination properly caps page_size at 200
+
+3. **Testing infrastructure completed**:
+   - All 25 API tests now passing (was 7 failing)
+   - Comprehensive endpoint coverage
+   - Data integrity and pagination testing
+
+4. **Documentation improvements**:
+   - Created `docs/DATABASE_SCHEMA.md` with complete table structures
+   - Documented actual field names and relationships
+   - Added API model alignment notes
+
 ---
 
 ## Key Files
@@ -87,25 +115,30 @@
 - `pyproject.toml` - Modern dependency management
 - `.gitignore` - Comprehensive exclusions
 - `PROJECT_IMPROVEMENTS.md` - Detailed analysis and recommendations
+- `docs/DATABASE_SCHEMA.md` - Complete database schema documentation
+
+### Testing
+- `tests/test_api.py` - Comprehensive API test suite (25/25 passing)
 
 ---
 
-## Next Steps
+## Project Improvements Status
 
-### Immediate
-1. Review PROJECT_IMPROVEMENTS.md for schema refactoring recommendations
-2. Add basic API tests
-3. Create setup documentation
+### ✅ Completed (Immediate Priority)
+1. **Schema compatibility fixes** - API models match database schema
+2. **API testing** - Full test suite implemented and passing
+3. **Schema documentation** - Complete database documentation created
 
-### Short Term
-4. Refactor vote schema (separate aggregate votes from member votes)
-5. Add configuration management (config.py)
-6. Implement database migrations (Alembic)
+### 🔄 Remaining Short Term
+4. **Database migrations** - Complete Alembic setup for full schema versioning (currently only has constraint migration)
+5. **Vote schema refactoring** - Implement clean two-table design (Vote + VoteParticipant)
+6. **Configuration management** - Add config.py with environment settings
+7. **Setup documentation** - Create SETUP.md for easy project setup
 
-### Medium Term
-7. Add API authentication if needed
-8. Performance optimization (caching, query optimization)
-9. Deploy to production environment
+### 🔄 Medium Term
+8. **API authentication** - Add security if needed for production
+9. **Performance optimization** - Caching and query optimization
+10. **Production deployment** - Environment setup and deployment guides
 
 ---
 
@@ -143,4 +176,4 @@ python scripts/extraction/bills/fetch_bill_progress.py
 
 ---
 
-*Last updated: 2025-10-21*
+*Last updated: 2025-10-21 (Schema fixes completed)*

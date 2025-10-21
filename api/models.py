@@ -43,8 +43,18 @@ class RoleBase(BaseModel):
     role_id: int
     member_id: int
     role_type: str
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    from_date: Optional[date] = None
+    to_date: Optional[date] = None
+    parliament_number: Optional[str] = None
+    session_number: Optional[str] = None
+    constituency_name: Optional[str] = None
+    constituency_province: Optional[str] = None
+    party: Optional[str] = None
+    committee_name: Optional[str] = None
+    affiliation_role_name: Optional[str] = None
+    organization_name: Optional[str] = None
+    office_role: Optional[str] = None
+    election_result: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -58,28 +68,40 @@ class RoleWithMember(RoleBase):
 # ==================== VOTE MODELS ====================
 
 class VoteBase(BaseModel):
-    """Base vote information."""
+    """Base vote information (individual member votes)."""
     vote_id: int
-    vote_number: int
+    member_id: int
     parliament_number: int
     session_number: int
-    sitting_number: Optional[int] = None
+    vote_topic: Optional[str] = None
+    subject: Optional[str] = None
+    vote_result: Optional[str] = None  # Overall vote outcome
     vote_date: Optional[date] = None
-    decision: Optional[str] = None
-    bill_number: Optional[str] = None
-    yea_total: Optional[int] = None
-    nay_total: Optional[int] = None
-    paired_total: Optional[int] = None
+    member_vote: Optional[str] = None  # Individual member's vote
 
     class Config:
         from_attributes = True
 
 
-class VoteDetail(VoteBase):
-    """Detailed vote information including participants."""
+class VoteDetail(BaseModel):
+    """Detailed vote information aggregated from individual member votes."""
+    vote_id: int
+    parliament_number: int
+    session_number: int
+    vote_topic: Optional[str] = None
+    subject: Optional[str] = None
+    vote_result: Optional[str] = None
+    vote_date: Optional[date] = None
     participants_count: int = 0
+    yea_count: int = 0
+    nay_count: int = 0
+    paired_count: int = 0
     yea_members: List[str] = []
     nay_members: List[str] = []
+    paired_members: List[str] = []
+
+    class Config:
+        from_attributes = True
 
 
 class VoteParticipantBase(BaseModel):
@@ -191,7 +213,7 @@ class PaginatedResponse(BaseModel):
 class MemberFilters(BaseModel):
     """Filters for member queries."""
     party: Optional[str] = None
-    province: Optional[str] = None
+    province_name: Optional[str] = None  # Match database field name
     constituency: Optional[str] = None
     name: Optional[str] = None
 
@@ -200,8 +222,10 @@ class VoteFilters(BaseModel):
     """Filters for vote queries."""
     parliament_number: Optional[int] = None
     session_number: Optional[int] = None
-    bill_number: Optional[str] = None
-    decision: Optional[str] = None
+    vote_topic: Optional[str] = None
+    subject: Optional[str] = None
+    vote_result: Optional[str] = None  # Match database field name
+    member_vote: Optional[str] = None
     date_from: Optional[date] = None
     date_to: Optional[date] = None
 

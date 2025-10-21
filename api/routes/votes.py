@@ -23,8 +23,9 @@ def list_votes(
     page_size: int = Query(50, ge=1, le=200, description="Items per page"),
     parliament_number: Optional[int] = Query(None, description="Filter by parliament"),
     session_number: Optional[int] = Query(None, description="Filter by session"),
-    bill_number: Optional[str] = Query(None, description="Filter by bill number"),
-    decision: Optional[str] = Query(None, description="Filter by decision (Agreed, Negatived)"),
+    vote_topic: Optional[str] = Query(None, description="Filter by vote topic"),
+    vote_result: Optional[str] = Query(None, description="Filter by vote result"),
+    member_vote: Optional[str] = Query(None, description="Filter by member's vote"),
     date_from: Optional[date] = Query(None, description="Filter votes from this date"),
     date_to: Optional[date] = Query(None, description="Filter votes until this date"),
     db: Session = Depends(get_db)
@@ -41,17 +42,19 @@ def list_votes(
         query = query.filter(Vote.parliament_number == parliament_number)
     if session_number:
         query = query.filter(Vote.session_number == session_number)
-    if bill_number:
-        query = query.filter(Vote.bill_number == bill_number)
-    if decision:
-        query = query.filter(Vote.decision == decision)
+    if vote_topic:
+        query = query.filter(Vote.vote_topic.like(f"%{vote_topic}%"))
+    if vote_result:
+        query = query.filter(Vote.vote_result == vote_result)
+    if member_vote:
+        query = query.filter(Vote.member_vote == member_vote)
     if date_from:
         query = query.filter(Vote.vote_date >= date_from)
     if date_to:
         query = query.filter(Vote.vote_date <= date_to)
 
     # Order by date descending (most recent first)
-    query = query.order_by(Vote.vote_date.desc(), Vote.vote_number.desc())
+    query = query.order_by(Vote.vote_date.desc(), Vote.vote_id.desc())
 
     # Get total count
     total = query.count()
@@ -105,42 +108,46 @@ def get_vote(vote_id: int, db: Session = Depends(get_db)):
 
     Includes participant counts and lists of members who voted yea/nay.
     """
-    vote = db.query(Vote).filter(Vote.vote_id == vote_id).first()
+    # Get all vote records with this vote_id (individual member votes)
+    vote_records = db.query(Vote).options(
+        joinedload(Vote.member)
+    ).filter(Vote.vote_id == vote_id).all()
 
-    if not vote:
+    if not vote_records:
         raise HTTPException(status_code=404, detail="Vote not found")
 
-    # Get participants
-    participants = db.query(ParliamentaryAssociation).options(
-        joinedload(ParliamentaryAssociation.member)
-    ).filter(ParliamentaryAssociation.vote_id == vote_id).all()
+    # Use first record for vote metadata
+    vote = vote_records[0]
 
-    # Build member lists
+    # Aggregate participant data
     yea_members = []
     nay_members = []
+    paired_members = []
 
-    for p in participants:
-        member_name = f"{p.member.first_name} {p.member.last_name}"
-        if p.vote_status == 'Yea':
+    for record in vote_records:
+        member_name = record.member.name if record.member else "Unknown"
+        if record.member_vote == 'Yea':
             yea_members.append(member_name)
-        elif p.vote_status == 'Nay':
+        elif record.member_vote == 'Nay':
             nay_members.append(member_name)
+        elif record.member_vote == 'Paired':
+            paired_members.append(member_name)
 
     return {
         "vote_id": vote.vote_id,
-        "vote_number": vote.vote_number,
         "parliament_number": vote.parliament_number,
         "session_number": vote.session_number,
-        "sitting_number": vote.sitting_number,
+        "vote_topic": vote.vote_topic,
+        "subject": vote.subject,
+        "vote_result": vote.vote_result,
         "vote_date": vote.vote_date,
-        "decision": vote.decision,
-        "bill_number": vote.bill_number,
-        "yea_total": vote.yea_total,
-        "nay_total": vote.nay_total,
-        "paired_total": vote.paired_total,
-        "participants_count": len(participants),
+        "participants_count": len(vote_records),
+        "yea_count": len(yea_members),
+        "nay_count": len(nay_members),
+        "paired_count": len(paired_members),
         "yea_members": sorted(yea_members),
-        "nay_members": sorted(nay_members)
+        "nay_members": sorted(nay_members),
+        "paired_members": sorted(paired_members)
     }
 
 
@@ -199,13 +206,13 @@ def get_vote_participants(
     }
 
 
-@router.get("/by-bill/{bill_number}", response_model=List[VoteBase])
-def get_votes_by_bill(bill_number: str, db: Session = Depends(get_db)):
+@router.get("/by-topic/{topic}", response_model=List[VoteBase])
+def get_votes_by_topic(topic: str, db: Session = Depends(get_db)):
     """
-    Get all votes related to a specific bill.
+    Get all votes related to a specific topic.
     """
     votes = db.query(Vote).filter(
-        Vote.bill_number == bill_number
+        Vote.vote_topic.like(f"%{topic}%")
     ).order_by(Vote.vote_date.desc()).all()
 
     return [VoteBase.from_orm(v) for v in votes]
@@ -229,11 +236,18 @@ def get_vote_summary(
 
     votes = query.all()
 
-    agreed_count = sum(1 for v in votes if v.decision == 'Agreed')
-    negatived_count = sum(1 for v in votes if v.decision == 'Negatived')
+    # Count unique votes (not individual member votes)
+    unique_votes = {}
+    for v in votes:
+        key = v.vote_id
+        if key not in unique_votes:
+            unique_votes[key] = v
+
+    agreed_count = sum(1 for v in unique_votes.values() if v.vote_result == 'Agreed')
+    negatived_count = sum(1 for v in unique_votes.values() if v.vote_result == 'Negatived')
 
     return {
-        "total_votes": len(votes),
+        "total_votes": len(unique_votes),
         "agreed": agreed_count,
         "negatived": negatived_count,
         "parliament_number": parliament_number,

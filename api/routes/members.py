@@ -25,9 +25,9 @@ router = APIRouter(prefix="/members", tags=["members"])
 @router.get("/", response_model=PaginatedResponse)
 def list_members(
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=200, description="Items per page"),
+    page_size: int = Query(50, ge=1, description="Items per page"),
     party: Optional[str] = Query(None, description="Filter by party"),
-    province: Optional[str] = Query(None, description="Filter by province"),
+    province_name: Optional[str] = Query(None, description="Filter by province"),
     constituency: Optional[str] = Query(None, description="Filter by constituency"),
     name: Optional[str] = Query(None, description="Search by name (first or last)"),
     db: Session = Depends(get_db)
@@ -37,20 +37,21 @@ def list_members(
 
     Returns paginated list of members with basic information.
     """
+    # Cap page_size at 200
+    if page_size > 200:
+        page_size = 200
+
     query = db.query(Member)
 
     # Apply filters
     if party:
         query = query.filter(Member.party == party)
-    if province:
-        query = query.filter(Member.province == province)
+    if province_name:
+        query = query.filter(Member.province_name == province_name)
     if constituency:
         query = query.filter(Member.constituency.like(f"%{constituency}%"))
     if name:
-        query = query.filter(
-            (Member.first_name.like(f"%{name}%")) |
-            (Member.last_name.like(f"%{name}%"))
-        )
+        query = query.filter(Member.name.like(f"%{name}%"))
 
     # Get total count
     total = query.count()
@@ -85,7 +86,7 @@ def list_provinces(db: Session = Depends(get_db)):
     """
     Get list of all unique provinces.
     """
-    provinces = db.query(Member.province).distinct().filter(Member.province.isnot(None)).all()
+    provinces = db.query(Member.province_name).distinct().filter(Member.province_name.isnot(None)).all()
     return sorted([p[0] for p in provinces])
 
 
@@ -116,10 +117,9 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     # Convert to response model
     member_dict = {
         "member_id": member.member_id,
-        "first_name": member.first_name,
-        "last_name": member.last_name,
+        "name": member.name,
         "constituency": member.constituency,
-        "province": member.province,
+        "province_name": member.province_name,
         "party": member.party,
         "roles": member.roles,
         "votes_count": votes_count,
@@ -146,8 +146,18 @@ def get_member_roles(member_id: int, db: Session = Depends(get_db)):
             "role_id": r.role_id,
             "member_id": r.member_id,
             "role_type": r.role_type,
-            "start_date": r.start_date,
-            "end_date": r.end_date
+            "from_date": r.from_date,
+            "to_date": r.to_date,
+            "parliament_number": r.parliament_number,
+            "session_number": r.session_number,
+            "constituency_name": r.constituency_name,
+            "constituency_province": r.constituency_province,
+            "party": r.party,
+            "committee_name": r.committee_name,
+            "affiliation_role_name": r.affiliation_role_name,
+            "organization_name": r.organization_name,
+            "office_role": r.office_role,
+            "election_result": r.election_result
         }
         for r in roles
     ]
