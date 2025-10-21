@@ -307,6 +307,13 @@ def parse_bill_progress_json(json_data, bill_id):
         data = json.loads(json_data)
         progress_stages = []
 
+        # Handle both formats: list or object
+        # parl.ca API sometimes returns a list with one object
+        if isinstance(data, list):
+            if len(data) == 0:
+                return []
+            data = data[0]  # Get first element
+
         # Extract BillStages object
         bill_stages = data.get('BillStages', {})
 
