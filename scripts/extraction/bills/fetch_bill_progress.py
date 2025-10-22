@@ -320,26 +320,28 @@ def parse_bill_progress_json(json_data, bill_id):
         # Process House stages
         house_stages = bill_stages.get('HouseBillStages', [])
         for stage in house_stages:
-            # Only extract completed stages (State = 4)
-            if stage.get('State') == 4:
-                stage_dict = {
-                    'bill_id': bill_id,
-                    'status': stage.get('BillStageName', 'Unknown'),
-                    'progress_date': parse_date(stage.get('StateAsOfDate'))
-                }
-                progress_stages.append(stage_dict)
+            # Extract ALL stages (not just State = 4)
+            stage_dict = {
+                'bill_id': bill_id,
+                'status': stage.get('BillStageName', 'Unknown'),
+                'progress_date': parse_date(stage.get('StateAsOfDate')),
+                'state': stage.get('State'),
+                'state_name': stage.get('StateName')
+            }
+            progress_stages.append(stage_dict)
 
         # Process Senate stages
         senate_stages = bill_stages.get('SenateBillStages', [])
         for stage in senate_stages:
-            # Only extract completed stages (State = 4)
-            if stage.get('State') == 4:
-                stage_dict = {
-                    'bill_id': bill_id,
-                    'status': stage.get('BillStageName', 'Unknown'),
-                    'progress_date': parse_date(stage.get('StateAsOfDate'))
-                }
-                progress_stages.append(stage_dict)
+            # Extract ALL stages (not just State = 4)
+            stage_dict = {
+                'bill_id': bill_id,
+                'status': stage.get('BillStageName', 'Unknown'),
+                'progress_date': parse_date(stage.get('StateAsOfDate')),
+                'state': stage.get('State'),
+                'state_name': stage.get('StateName')
+            }
+            progress_stages.append(stage_dict)
 
         return progress_stages
 

@@ -128,6 +128,8 @@ class BillProgress(Base):
     bill_id = Column(Integer, ForeignKey('bills.bill_id'))
     status = Column(String)
     progress_date = Column(Date)
+    state = Column(Integer)  # State code (1-5)
+    state_name = Column(String)  # State name (Not reached, In progress, Completed, etc.)
 
     # Relationships
     bill = relationship("Bill", back_populates="bill_progress")

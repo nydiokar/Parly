@@ -185,6 +185,106 @@ python scripts/extraction/bills/fetch_bill_progress.py
 
 ## Recent Changes (2025-10-22)
 
+### Bill Progress Enhancement - Capturing ALL Stages
+
+**Completed**: Modified bill progress scraper to capture complete bill lifecycle
+
+1. **Schema Update**:
+   - Added `state` (INTEGER) and `state_name` (VARCHAR) columns to bill_progress table
+   - Updated SQLAlchemy model in `db_setup/create_database.py`
+
+2. **Scraper Modification**:
+   - File: `scripts/extraction/bills/fetch_bill_progress.py`
+   - Removed filter for State==4 (completed only)
+   - Now captures ALL stages: Not reached (1), No activity (2), Completed (4), Not completed (5)
+
+3. **Results** (in progress - 409/1094 bills):
+   - 3,466+ stages captured (was 2,345 completed-only)
+   - State 1 "Not reached": 2,486 stages
+   - State 2 "No activity": 55 stages
+   - State 4 "Completed": 860 stages
+   - State 5 "Not completed": 65 stages
+   - Expected final: ~8,000-10,000 stages
+
+4. **Analytics Unlocked**:
+   - Identify bottleneck stages (where bills die)
+   - Predict bill success based on current stage
+   - Track stage timing and duration
+   - Real-time bill status tracking
+
+---
+
+### Historical Parliamentarians Data Located
+
+**Found**: `data/Parliamentarians-35-to-45th.xlsx`
+
+1. **Coverage**:
+   - 1,658 parliamentarians total
+   - 10 parliaments (35th-45th)
+   - Time span: 1993-2025 (32 years)
+   - New historical members: ~1,200 (beyond current 455)
+
+2. **Available Data**:
+   - Names, service dates, constituencies
+   - Province/territory, gender
+   - Political affiliation history
+   - Parliament spans and career periods
+
+3. **Critical Gap**:
+   - ❌ No member_ids in Excel file
+   - member_ids required to fetch detailed roles/votes from ourcommons.ca
+   - Can import basic career data WITHOUT member_ids
+   - Cannot fetch detailed roles/votes/bills without member_ids
+
+4. **Decision Pending**:
+   - Option A: Import basic data (names, dates, parties) for career analytics
+   - Option B: Defer historical members until ID matching strategy found
+   - Option C: Manual ID lookup for key historical figures only
+
+---
+
+### Phase 1.2: Structured Data Audit Completed
+
+**Completed**: Comprehensive data audit and analysis
+
+1. **Database Statistics Gathered**:
+   - 455 current MPs with complete profiles
+   - 105,367 voting records (2021-2025, 4 years)
+   - 1,094 bills from 5 parliaments (~10 years)
+   - 11,297 role records across multiple types
+   - 2,345 bill progress stages
+
+2. **Data Completeness Analysis**:
+   - ✅ **Strong**: Current 44th Parliament data (2021-present)
+   - ⚠️ **Gaps Identified**:
+     - Parliamentary associations table empty (0 records)
+     - Bill progress incomplete (~2.1 stages/bill, should be 3-6)
+     - Historical votes limited (pre-2021 sparse)
+     - Historical bills limited (pre-2015 sparse)
+
+3. **Created DATA_AUDIT_REPORT.md**:
+   - Comprehensive 8-section report
+   - Table-by-table completeness analysis
+   - Data source completeness matrix
+   - Quality assessment (75% complete, 85% after fixes)
+   - Missing data sources identified (19 categories)
+   - Prioritized recommendations (immediate, short-term, medium-term)
+   - Data refresh requirements documented
+
+4. **Key Findings**:
+   - **Overall Data Readiness**: 75% for Phase 1.3
+   - **Immediate Actions**: 3 items (parliamentary associations, bill progress, refresh docs)
+   - **Short Term**: 3 items (historical backfill, metadata enhancement, dashboard)
+   - **Medium Term**: 3 items (automated refresh, historical expansion, validation)
+
+5. **Next Priorities**:
+   - Fix parliamentary associations scraper (1-2 hours)
+   - Complete bill progress data (2-3 hours)
+   - Create data refresh runbook (1 hour)
+   - Then proceed to Phase 1.3: Basic Analytics API
+
+---
+
 ### Standardized AI Workflow Setup
 
 **Completed**: Integrated `.ai/` folder for cross-session context management
