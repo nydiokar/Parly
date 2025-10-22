@@ -2,8 +2,8 @@
 
 **Project**: Parly - Parliamentary Data API
 **Goal**: Build AI-powered parliamentary intelligence system for Canadian parliamentary data
-**Status**: Phase 1 - Data Foundation Complete
-**Last Updated**: 2025-10-22 13:15 UTC
+**Status**: Phase 1 - Data Foundation Complete (with historical data)
+**Last Updated**: 2025-10-22 15:30 UTC
 **Updated By**: Claude Sonnet 4.5
 
 ---
@@ -21,17 +21,20 @@
 - [x] Modern dependency management (pyproject.toml)
 - [x] Standardized .ai/ workflow setup (cross-session context management)
 - [x] Data audit completed (docs/DATA_AUDIT_REPORT.md)
+- [x] Historical members import (1,246 members from 1993-2025)
+- [x] Historical roles parsed from Excel (3,588 role entries with dates)
 
 ---
 
 ## Active
 
-**Current Task**: Bill Progress Enhancement Complete, Historical Members Next
+**Current Task**: Historical Members Import COMPLETE, Ready for Analytics Phase
 
-- [x] Bill progress schema updated (added state, state_name columns)
-- [x] Bill progress scraper modified (captures ALL stages, not just completed)
-- [x] Bill scraper running (409/1094 bills done, ~15 min remaining)
-- [ ] Decision needed: Import 1,658 historical parliamentarians (without member_ids)
+- [x] Historical members imported (1,246 members, IDs 900000-901657)
+- [x] Historical roles parsed and imported (3,588 role entries)
+- [x] Duplicate detection working (412 duplicates skipped)
+- [x] Scripts cleaned up (deleted backfill and one-time fix scripts)
+- [ ] Ready to proceed with Phase 1.3: Basic Analytics API
 
 ---
 
@@ -76,22 +79,22 @@ None
 - PROGRESS_LOG.md captures work artifacts, .ai/ provides session context
 - Focus shifting to analytics and LLM integration phases
 
-### Database Statistics (as of 2025-10-22)
-- Members: 455 records (current MPs)
-- Roles: 11,297 records (multiple types)
+### Database Statistics (as of 2025-10-22 - Updated)
+- Members: 1,701 records (455 current + 1,246 historical)
+- Roles: 14,885 records (11,297 current + 3,588 historical)
 - Votes: 105,367 records (2021-2025, 4 years)
 - Bills: 1,094 records (5 parliaments, ~10 years)
-- Bill Progress: 2,345 records (~2.1 stages/bill)
-- Parliamentary Associations: 0 records (EMPTY - needs population)
+- Bill Progress: 5,636 records (all stages captured)
+- Parliamentary Associations: 0 records (included in roles table)
 
 ### Data Audit Findings (Updated 2025-10-22)
 - ✅ Parliamentary associations: 3,447 records IN roles table (not separate table)
-- ✅ Bill progress: Capturing ALL stages now (not just completed)
-  - 3,466+ stages captured (was 2,345 completed-only)
-  - State 1 "Not reached": 2,486 stages
-  - State 4 "Completed": 860 stages
-- ✅ Historical parliamentarians found: 1,658 members (35th-45th, 1993-2025)
-- ❌ Historical member_ids missing (Excel has names/dates/parties but no IDs)
+- ✅ Bill progress: 5,636 stages captured (all bill lifecycle stages)
+- ✅ Historical parliamentarians: 1,246 unique members imported (35th-45th, 1993-2025)
+  - IDs: 900000-901657 (clearly identifiable as historical/assumed IDs)
+  - 3,588 historical roles with date ranges, constituencies, parties
+  - 412 duplicates skipped (already in current 455 members)
+- ✅ Data spans: 1993-2025 (32 years of parliamentary history)
 
 ---
 

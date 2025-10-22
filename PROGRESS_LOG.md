@@ -10,8 +10,8 @@
 ### Database Contents
 | Table | Records | Status |
 |-------|---------|--------|
-| Members | 455 | ✅ Complete |
-| Roles | 11,297 | ✅ Complete |
+| Members | 1,701 | ✅ Complete (455 current + 1,246 historical) |
+| Roles | 14,885 | ✅ Complete (includes historical roles) |
 | Votes | 105,367 | ✅ Complete |
 | Bills | 1,094 | ✅ Complete |
 | Bill Progress | 5,636 | ✅ Complete |
@@ -314,4 +314,51 @@ python scripts/extraction/bills/fetch_bill_progress.py
 
 ---
 
-*Last updated: 2025-10-22 (AI workflow standardization)*
+## Recent Changes (2025-10-22 - Afternoon)
+
+### Historical Members Import Fixed
+
+**Completed**: Resolved the disastrous historical members import and properly integrated 1,246 historical parliamentarians
+
+1. **Problem Identified**:
+   - Initial import script (`import_historical_members.py`) imported 1,658 members with auto-generated sequential IDs (123676-125333)
+   - These IDs were NOT real parliamentary member_ids
+   - Members had no roles imported from Excel data
+   - Created duplicates of existing members (e.g., "Aboultaif, Ziad" vs "Ziad Aboultaif")
+
+2. **Solution Implemented** (`fix_historical_import.py`):
+   - **Deleted**: All 1,658 incorrectly imported members (IDs 123676-125333)
+   - **Re-imported**: 1,246 unique historical members with proper ID scheme (900000-901657)
+   - **Parsed**: ALL role data from Excel (MP positions, constituencies, parties with date ranges)
+   - **Skipped**: 412 duplicates (already existed in original 455)
+   - **Converted**: Names from "Family, Personal" → "Personal Family" format
+
+3. **Excel Role Parser Created**:
+   - Parses multi-line fields: "MP (1997/06/02 - 2011/05/01)\nMP (1993/10/25 - 1997/06/01)"
+   - Extracts date ranges, constituencies, party affiliations
+   - Handles ongoing roles (date range ending with "- ")
+   - Creates proper Role table entries with RoleType enum values
+
+4. **Results**:
+   - Total members: 1,701 (455 original + 1,246 historical)
+   - Total roles: 14,885 (11,297 + 3,588 new historical roles)
+   - Historical members: IDs 900000-901657 (clearly identifiable as historical/assumed IDs)
+   - Members without roles: 1 (had no parseable data in Excel)
+
+5. **Script Cleanup**:
+   - ✅ Kept: `update_members_simple.py` (for ongoing automation)
+   - ❌ Deleted: `import_historical_members.py` (incorrect backfill script)
+   - ❌ Deleted: `fix_historical_import.py` (one-time fix, no longer needed)
+   - Decision pending: `member_id_scraper.py` (may be obsolete)
+
+6. **Database State**:
+   - Clean dataset with no duplicates
+   - Historical members clearly marked with 900000+ IDs
+   - All role data properly structured with dates
+   - Ready for analytics and queries spanning 1993-2025
+
+**Key Lesson**: Principle of Least Action - created ONE consolidated fix script instead of multiple modular scripts. Faster, simpler, less token waste.
+
+---
+
+*Last updated: 2025-10-22 (Historical members import fixed)*

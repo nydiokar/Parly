@@ -31,13 +31,13 @@ Parly has comprehensive documentation in the `docs/` directory:
 
 Current focus: **Phase 1 of Roadmap** - Structured Data Foundation & Early AI Integration
 
-### Phase 1.2: Structured Data Audit & Expansion (Next Priority)
+### Phase 1.2: Structured Data Audit & Expansion (COMPLETED)
 
 1. **Data Source Inventory** (1-2 days)
-   - [ ] Audit current data sources and completeness
-   - [ ] Identify missing structured data sources
-   - [ ] Document data refresh/update processes
-   - [ ] Consider historical member data (past 100+ years)
+   - [x] Audit current data sources and completeness
+   - [x] Identify missing structured data sources
+   - [x] Document data refresh/update processes
+   - [x] Historical member data imported (1993-2025, 1,246 members)
 
 2. **Data Quality & Completeness** (2-3 days)
    - [ ] Verify data integrity across all tables
@@ -93,13 +93,16 @@ Current focus: **Phase 1 of Roadmap** - Structured Data Foundation & Early AI In
 
 ### Database
 - `db_setup/create_database.py` - SQLAlchemy schema definitions
-- `data/parliament.db` - SQLite database (455 members, 105K+ votes, 1K+ bills)
+- `data/parliament.db` - SQLite database (1,701 members, 14K+ roles, 105K+ votes, 1K+ bills)
 
 ### Data Extraction (Production-Ready Scrapers)
 - `scripts/extraction/votes/fetch_votes.py` - Vote scraping with retry logic
 - `scripts/extraction/bills/fetch_bills.py` - Bill metadata extraction
 - `scripts/extraction/bills/fetch_bill_progress.py` - Legislative progress tracking
+- `scripts/extraction/members/update_members_simple.py` - **Ongoing member updates** (automation)
 - `scripts/extraction/scraper_template.py` - Template for future scrapers
+
+**Note**: Historical backfill scripts have been deleted. Only `update_members_simple.py` is needed for ongoing member/role updates.
 
 ### Testing
 - `tests/test_api.py` - Comprehensive API test suite (25 tests, all passing)
