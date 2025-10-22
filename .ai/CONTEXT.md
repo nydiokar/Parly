@@ -28,23 +28,46 @@
 
 ## Active
 
-**Current Task**: Historical Members Import COMPLETE, Ready for Analytics Phase
+**Current Task**: Historical Members Enriched with Official IDs - Data Expansion Planning
 
-- [x] Historical members imported (1,246 members, IDs 900000-901657)
-- [x] Historical roles parsed and imported (3,588 role entries)
-- [x] Duplicate detection working (412 duplicates skipped)
-- [x] Scripts cleaned up (deleted backfill and one-time fix scripts)
-- [ ] Ready to proceed with Phase 1.3: Basic Analytics API
+- [x] Historical members enriched with official PersonIds (615 members matched)
+- [x] Detailed roles imported from XML (6,679 roles: MP, Party, Committee, Office)
+- [x] ID mapping: 900000+ temp IDs replaced with official IDs where available
+- [x] 631 members still have temporary IDs (Parliament 35 & unmatched members)
+- [ ] **NEXT**: Expand data collection for historical members (votes, bills)
 
 ---
 
 ## Next
 
-Following data completeness fixes:
-1. Backfill historical votes (43rd Parliament: 2019-2021, ~50K votes)
-2. Enhance bill metadata (titles, summaries, royal assent dates)
-3. Implement automated data refresh (daily votes, weekly bills/roles)
-4. Build basic analytics API (member activity, voting patterns, bill metrics)
+### Data Expansion for Historical Members (Parliaments 35-44)
+
+1. **Member Votes Collection**
+   - Fetch votes for all 615 newly enriched historical members with official IDs
+   - Use URL template: `member_votes` from `url_templates.py`
+   - Target: ~500K+ historical votes (1993-2021)
+   - **Status**: Planned - Not started
+
+2. **Bills Collection for Historical Parliaments**
+   - Current bills only cover members initially in DB (455 current MPs)
+   - Need to fetch bills from Parliaments 35-44 comprehensively
+   - Use URL template: `bills_sponsored` from `url_templates.py`
+   - **Bill ID Strategy Decision**: Use auto-generated IDs + formatted bill_number (e.g., "C-249")
+     - Bills have native `bill_id` in XML (see `download (1).xml`)
+     - **Decision**: Skip native bill_id mapping, use auto-incremented primary key
+     - Formatted bill_number (C-249, S-15, etc.) is sufficient for uniqueness
+   - **Status**: Planned - Not started
+
+3. **Data Refresh Automation**
+   - Implement daily/weekly scrapers for new data
+   - Monitor for new members, votes, bills
+   - **Status**: Deferred until historical backfill complete
+
+4. **Analytics API (Phase 1.3)**
+   - Member activity metrics
+   - Voting patterns analysis
+   - Bill sponsorship trends
+   - **Status**: Deferred until data expansion complete
 
 ---
 
@@ -79,22 +102,28 @@ None
 - PROGRESS_LOG.md captures work artifacts, .ai/ provides session context
 - Focus shifting to analytics and LLM integration phases
 
-### Database Statistics (as of 2025-10-22 - Updated)
-- Members: 1,701 records (455 current + 1,246 historical)
-- Roles: 14,885 records (11,297 current + 3,588 historical)
-- Votes: 105,367 records (2021-2025, 4 years)
-- Bills: 1,094 records (5 parliaments, ~10 years)
-- Bill Progress: 5,636 records (all stages captured)
-- Parliamentary Associations: 0 records (included in roles table)
+### Database Statistics (as of 2025-10-22 - After Enrichment)
+- Members: 1,701 records
+  - 1,070 with official PersonIds (< 900000)
+  - 631 with temporary IDs (>= 900000) - Parliament 35 & unmatched
+- Roles: 19,930 records
+  - Massive expansion from 14,885 → 19,930 (+5,045 roles)
+  - Includes: MP roles, Party affiliations, Committee memberships, Parliamentarian Offices
+- Votes: 105,367 records (2021-2025, current MPs only)
+  - **GAP**: Missing ~500K+ votes from historical members (Parliaments 35-44)
+- Bills: 1,094 records (sponsor-based collection, current MPs only)
+  - **GAP**: Missing bills from Parliaments 35-44 not sponsored by current MPs
+- Bill Progress: 5,636 records (all stages captured for collected bills)
 
-### Data Audit Findings (Updated 2025-10-22)
-- ✅ Parliamentary associations: 3,447 records IN roles table (not separate table)
-- ✅ Bill progress: 5,636 stages captured (all bill lifecycle stages)
-- ✅ Historical parliamentarians: 1,246 unique members imported (35th-45th, 1993-2025)
-  - IDs: 900000-901657 (clearly identifiable as historical/assumed IDs)
-  - 3,588 historical roles with date ranges, constituencies, parties
-  - 412 duplicates skipped (already in current 455 members)
-- ✅ Data spans: 1993-2025 (32 years of parliamentary history)
+### Data Audit Findings (Updated 2025-10-22 - Post Enrichment)
+- ✅ Historical members enriched with official PersonIds (615 matched, 631 unmatched)
+- ✅ Historical roles expanded: 3,588 → 19,930 total roles (+434% increase)
+- ✅ Detailed role types now captured: MP, Party, Committee, Office
+- ⚠️ **Data Gaps Identified**:
+  - Historical member votes not collected (only current 455 MPs have votes)
+  - Historical parliament bills incomplete (only bills from current MPs)
+- ✅ Data spans: 1993-2025 (32 years of parliamentary history for members/roles)
+- ⚠️ Vote/Bill data spans: 2021-2025 (only 4 years, needs 1993-2021 backfill)
 
 ---
 

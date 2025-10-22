@@ -10,11 +10,11 @@
 ### Database Contents
 | Table | Records | Status |
 |-------|---------|--------|
-| Members | 1,701 | ✅ Complete (455 current + 1,246 historical) |
-| Roles | 14,885 | ✅ Complete (includes historical roles) |
-| Votes | 105,367 | ✅ Complete |
-| Bills | 1,094 | ✅ Complete |
-| Bill Progress | 5,636 | ✅ Complete |
+| Members | 1,701 | ✅ Complete (1,070 official IDs + 631 temp IDs) |
+| Roles | 19,930 | ✅ Complete (includes detailed historical roles) |
+| Votes | 105,367 | ⚠️ Partial (current MPs only, need historical backfill) |
+| Bills | 1,094 | ⚠️ Partial (current MPs only, need Parliaments 35-44) |
+| Bill Progress | 5,636 | ✅ Complete (for collected bills) |
 
 ### Completed Components
 - ✅ All data extraction scrapers (members, votes, bills, bill progress)
@@ -28,7 +28,79 @@
 
 ---
 
-## Recent Changes (2025-10-21)
+## Recent Changes (2025-10-22)
+
+### Historical Members Enrichment - Official IDs & Detailed Roles
+
+**Problem**: Historical members (900000+ IDs) lacked official PersonIds and had minimal role data from Excel.
+
+**Solution**: Created `scripts/extraction/members/enrich_historical_members.py` - comprehensive enrichment script.
+
+**What It Does**:
+1. **Phase 1**: Fetches all members from Parliaments 36-44 via XML endpoint
+   - URL: `https://www.ourcommons.ca/Members/en/search/xml?parliament=X&caucusId=all&province=all&gender=all`
+   - Parliament 35 has no XML data (members keep temp IDs)
+   
+2. **Phase 2**: Matches historical members to official PersonIds
+   - Uses name normalization for robust matching
+   - Replaces temp IDs (900000+) with official PersonIds
+   - Handles ID conflicts gracefully
+   
+3. **Phase 3**: Fetches detailed roles for each matched member
+   - URL: `https://www.ourcommons.ca/members/en/{search_pattern}/roles/xml`
+   - Imports: MP roles, Party affiliations, Committee memberships, Parliamentarian Offices
+   - Deletes old Excel-sourced roles, imports comprehensive XML data
+   
+4. **Phase 4**: Database verification and statistics
+
+**Results**:
+- ✅ 615 members matched with official PersonIds (900000+ → official IDs)
+- ✅ 631 members kept temporary IDs (Parliament 35 & unmatched)
+- ✅ Roles expanded: 14,885 → 19,930 (+5,045 roles, +34% increase)
+- ✅ 6,679 detailed roles imported from XML (replacing 2-6 Excel roles per member)
+- ✅ Role types now include: MP, Party, Committee, Office (vs. just MP/Party from Excel)
+
+**Script Details**:
+- **File**: `scripts/extraction/members/enrich_historical_members.py`
+- **Runtime**: ~12 minutes (615 members × 1 sec rate limit)
+- **Rate limiting**: 1 second between requests (polite scraping)
+- **Logging**: Full audit trail in `logs/historical_enrichment.log`
+
+**Database Impact**:
+- Members table: IDs updated in-place (referential integrity maintained)
+- Roles table: Historical roles replaced with comprehensive XML data
+- Total database size: Roles +34% increase
+
+**Key Decision**: Parliament 35 (1993-1997) has no XML data available, so those members retain temporary IDs 900000+.
+
+---
+
+### Data Gaps Identified & Next Steps
+
+**Gap 1: Historical Member Votes**
+- Current state: Only 455 current MPs have votes collected
+- Missing: ~500K+ votes from 615 historical members (Parliaments 36-44)
+- URL template available: `url_templates.py` → `member_votes`
+- **Status**: Planned, not started
+
+**Gap 2: Historical Parliament Bills**
+- Current state: Only bills sponsored by current 455 MPs
+- Missing: Bills from Parliaments 35-44 not in current collection
+- URL template available: `url_templates.py` → `bills_sponsored`
+- **Bill ID Decision**: 
+  - Bills have native `bill_id` in XML (see `data/download (1).xml`)
+  - **Decision**: Skip native bill_id, use auto-generated primary key
+  - Formatted bill_number (C-249, S-15) is sufficient for uniqueness
+- **Status**: Planned, not started
+
+**Next Actions**:
+1. Create member votes backfill script for 615 historical members
+2. Create bills collection script for Parliaments 35-44
+3. Update data refresh automation to handle both current and historical members
+
+---
+
+## Previous Changes (2025-10-21)
 
 ### Data Extraction
 1. **Completed all scrapers** using production-grade template:
