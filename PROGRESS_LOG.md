@@ -183,4 +183,35 @@ python scripts/extraction/bills/fetch_bill_progress.py
 
 ---
 
-*Last updated: 2025-10-21 (Schema fixes completed)*
+## Recent Changes (2025-10-22)
+
+### Standardized AI Workflow Setup
+
+**Completed**: Integrated `.ai/` folder for cross-session context management
+
+1. **Copied .ai-template from time-lab project**:
+   - Universal AI agent contract structure
+   - Enables session continuity across different AI agents
+   - Lightweight (~10KB), standardized approach
+
+2. **Customized for Parly project**:
+   - **CONTEXT.md**: Current state with completed work, active tasks, environment details
+   - **GUIDE.md**: Comprehensive task list, project documentation references, code patterns
+   - **README.md**: Explains relationship between PROGRESS_LOG.md (historical) vs .ai/CONTEXT.md (current)
+   - **RULES.md**: Universal execution contract (kept generic)
+   - **HANDOFF.md**: Session transfer protocol (kept generic)
+
+3. **Key Benefits**:
+   - No context loss between sessions
+   - Clear task tracking (completed vs. pending)
+   - Works with any LLM (Claude, GPT-4, Cursor, etc.)
+   - PROGRESS_LOG.md remains project artifact, .ai/ provides session state
+
+4. **Workflow Distinction**:
+   - **PROGRESS_LOG.md**: Historical record, major milestones, project changelog
+   - **.ai/CONTEXT.md**: Live working state, immediate next steps, active blockers
+   - Think: "Changelog" vs "Developer's scratch pad"
+
+---
+
+*Last updated: 2025-10-22 (AI workflow standardization)*
