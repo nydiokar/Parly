@@ -103,6 +103,20 @@ class ParliamentaryAssociation(Base):
     # Relationships
     member = relationship("Member", back_populates="associations")
 
+# Define the Senators table
+class Senator(Base):
+    __tablename__ = 'senators'
+    senator_id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    affiliation = Column(String)  # CSG, ISG, PSG, C, GRO, Non-affiliated
+    province = Column(String)
+    nomination_date = Column(Date)
+    retirement_date = Column(Date)
+    appointed_by = Column(String)  # Prime minister who appointed them
+
+    # Relationships
+    bills = relationship("Bill", back_populates="senator_sponsor")
+
 # Define the Bills table
 class Bill(Base):
     __tablename__ = 'bills'
@@ -114,12 +128,14 @@ class Bill(Base):
     short_title = Column(String)  # Short title of the bill
     long_title = Column(Text)  # Full title of the bill
     status = Column(String)
-    sponsor_id = Column(Integer, ForeignKey('members.member_id'))
+    sponsor_id = Column(Integer, ForeignKey('members.member_id'), nullable=True)  # For MP sponsors
+    senator_sponsor_id = Column(Integer, ForeignKey('senators.senator_id'), nullable=True)  # For Senator sponsors
     chamber = Column(String)
 
     # Relationships
     sponsor = relationship("Member", back_populates="bills")
-    bill_progress = relationship("BillProgress", back_populates="bill")
+    senator_sponsor = relationship("Senator", back_populates="bills")
+    progress_events = relationship("BillProgress", back_populates="bill")
 
 # Define the Bill Progress table
 class BillProgress(Base):
@@ -132,7 +148,7 @@ class BillProgress(Base):
     state_name = Column(String)  # State name (Not reached, In progress, Completed, etc.)
 
     # Relationships
-    bill = relationship("Bill", back_populates="bill_progress")
+    bill = relationship("Bill", back_populates="progress_events")
 
 # Keep these outside as they're needed for imports
 Session = sessionmaker(bind=engine)

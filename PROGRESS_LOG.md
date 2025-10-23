@@ -7,14 +7,15 @@
 **Documentation**: http://localhost:8000/docs + schema documentation
 **Testing**: ✅ 25/25 API tests passing
 
-### Database Contents
+### Database Contents (Updated 2025-10-22 22:00 UTC)
 | Table | Records | Status |
 |-------|---------|--------|
 | Members | 1,701 | ✅ Complete (1,070 official IDs + 631 temp IDs) |
+| Senators | 99 | ✅ Complete (current senators with affiliation) |
 | Roles | 19,930 | ✅ Complete (includes detailed historical roles) |
-| Votes | 105,367 | ⚠️ Partial (current MPs only, need historical backfill) |
-| Bills | 1,094 | ⚠️ Partial (current MPs only, need Parliaments 35-44) |
-| Bill Progress | 5,636 | ✅ Complete (for collected bills) |
+| Votes | 118,494 | ✅ Complete (historical data for all 1,701 members) |
+| Bills | 7,061 | ✅ Complete (House: 6,271 + Senate: 790) |
+| Bill Progress | ~10,000 | ✅ Complete (for all collected bills) |
 
 ### Completed Components
 - ✅ All data extraction scrapers (members, votes, bills, bill progress)
@@ -29,6 +30,53 @@
 ---
 
 ## Recent Changes (2025-10-22)
+
+### Senate Support & Comprehensive Bills Collection - COMPLETED ✅
+
+**Goal**: Add Senate support (senators + Senate bills) and collect ALL bills comprehensively.
+
+**Implementation**:
+
+1. **Database Schema Updates**
+   - Created `Senator` table with fields: senator_id, name, affiliation, province, nomination_date, retirement_date, appointed_by
+   - Added `senator_sponsor_id` column to `bills` table for Senate-sponsored bills
+   - Fixed migration to use Alembic batch mode for SQLite compatibility
+   - Migration file: `migrations/versions/cf0c0aac4b7e_add_senate_support.py`
+
+2. **Senator Data Import**
+   - Created `scripts/extraction/senators/import_senators_from_pdf.py`
+   - Imported 99 current senators from Senators-list.pdf
+   - Includes affiliation (CSG, ISG, PSG, C, GRO, Non-affiliated)
+   - Includes appointment details (nomination date, PM who appointed them)
+
+3. **Comprehensive Bills Scraper**
+   - Created `scripts/extraction/bills/fetch_all_bills.py`
+   - **Key Innovation**: Fetches ALL bills by parliament session (not by sponsor)
+   - URL format: `https://www.parl.ca/legisinfo/en/bills/xml?parlsession={parliament}-{session}`
+   - Covers Parliaments 35-45 (1993-2025)
+   - Auto-matches senator sponsors by name from XML data
+   - More comprehensive than member-based approach (captures government bills, Senate bills)
+
+4. **Historical Votes Collection**
+   - Ran `scripts/extraction/votes/fetch_votes.py` for all 1,701 members
+   - Collected votes from historical members (Parliaments 35-45)
+   - Added 13,127 new votes (105,367 → 118,494)
+
+**Results**:
+- ✅ 99 senators imported
+- ✅ 7,061 total bills (546% increase from 1,094)
+  - House of Commons: 6,271 bills
+  - Senate: 790 bills
+- ✅ 118,494 votes (historical coverage complete)
+- ✅ 32 years of comprehensive parliamentary data (1993-2025)
+
+**Files Created**:
+- `db_setup/create_database.py` - Added Senator model
+- `scripts/extraction/senators/import_senators_from_pdf.py` - Senator import script
+- `scripts/extraction/bills/fetch_all_bills.py` - Comprehensive bills scraper
+- `migrations/versions/cf0c0aac4b7e_add_senate_support.py` - Database migration
+
+---
 
 ### Historical Members Enrichment - Official IDs & Detailed Roles
 
