@@ -29,7 +29,110 @@
 
 ---
 
-## Recent Changes (2025-10-22)
+## Recent Changes (2025-10-23)
+
+### Project Direction Shift - Data Visualization Focus
+
+**Goal**: Shifted from "AI-powered intelligence" to "Data Visualization Platform"
+
+**Key Decisions**:
+1. **5 Components Identified**:
+   - Component 1: General/Context (funny findings, patterns)
+   - Component 2: Budget Analysis (where money goes)
+   - Component 3: Bills Visualization (what bills do, where they die)
+   - Component 4: Vote Stories (opposition motions)
+   - Component 5: Petitions (what people care about)
+
+2. **Data Pipeline Approach**:
+   - Build scrapers FIRST (complete data layer)
+   - THEN build API + frontend
+   - Correct engineering: data → API → viz
+
+**Discoveries**:
+
+1. **Bill Summaries Available** 🎉
+   - Found bill full text + summaries in XML format
+   - URL: `/Bills/{parl}{sess}/{chamber}/C-{num}/C-{num}_1/C-{num}_E.xml`
+   - Chamber determined by bill number (C-1 to C-200 = Government, C-200+ = Private)
+   - Summary provides clear description vs just title
+   - Game changer for bills analysis
+
+2. **Motion Text in Journal PDFs**
+   - URL: `/House/{parl}{sess}/Journals/{sitting:03d}/Journal{sitting:03d}.PDF`
+   - Contains motion text for opposition votes
+   - Who proposed, full text, budget line items
+   - Critical for vote stories component
+
+3. **Petition Data Available**
+   - URL: `/petitions/en/Petition/Search?parl=X&output=xml`
+   - Topic, sponsor, signatures, status
+   - Lower priority but interesting
+
+**Documentation Cleanup**:
+- Deleted 12 exploration documents
+- Created `docs/FINAL_ROADMAP.md` (5 components, 12-week plan)
+- Created `docs/data/DATA_SOURCES.md` (all sources, URL patterns)
+- Updated `.ai/context.md` with current state
+- Updated `db_setup/url_templates.py` with new patterns
+
+**Next Steps**:
+- [x] Build Bill XML scraper (4-6 hours) - COMPLETED
+- [ ] Build Journal PDF scraper (1-2 days)
+- [ ] Update database schema (add summary column, vote_motions table)
+- [ ] Then start building frontend
+
+**Files Created**:
+- `docs/FINAL_ROADMAP.md` - Complete 12-week plan
+- `docs/data/DATA_SOURCES.md` - All data sources documented
+- `scripts/test_bill_xml.py` - Test script for bill XML
+- `scripts/save_bill_xml.py` - Sample bill XML saver
+- `data/sample_bill_C-214.xml` - Sample bill for reference
+
+### Bill XML Scraper - COMPLETED ✅
+
+**Built**: Bill XML scraper to fetch rich bill details from Parliament XML files
+
+**Implementation**:
+1. **Enhanced Database Schema** (`db_setup/create_database.py`)
+   - Added `summary` column (summary + preamble text)
+   - Added `sponsor_name` column (display name: "Mr. Davies", "Sen. Smith")
+   - Added `bill_type` column (government, private-public, etc.)
+   - Added `introduction_date` column (first reading date)
+   - Created Alembic migration `a907ccf90fad_add_bill_xml_fields.py`
+
+2. **Created Bill XML Scraper** (`scripts/extraction/bills/fetch_bill_xml.py`)
+   - Fetches bill XML from parl.ca
+   - Extracts 4 key fields: summary, sponsor_name, bill_type, introduction_date
+   - Production-ready: retry logic, checkpointing, batch commits
+   - Rate limiting: 1s per bill (~2 hours for all 7,000+ bills)
+   - Smart filtering: only processes bills missing any XML fields
+
+3. **URL Pattern Logic**
+   - Government bills (C-1 to C-200): `/Bills/{parl}{sess}/Government/C-{num}/...`
+   - Private bills (C-201+): `/Bills/{parl}{sess}/Private/C-{num}/...`
+   - Senate bills (S-xxx): `/Bills/{parl}{sess}/Senate/S-{num}/...`
+
+4. **Cleanup**
+   - Consolidated bill scripts (deleted redundant exploration scripts)
+   - Removed: test_bill_xml.py, save_bill_xml.py, test_bill_xml_scraper.py, fetch_bills.py
+   - Removed: scripts/analytics/, scripts/analysis/ folders
+   - Created single comprehensive README for bill scrapers
+
+**Files Created/Updated**:
+- `scripts/extraction/bills/fetch_bill_xml.py` - Enhanced scraper (4 fields)
+- `scripts/extraction/bills/README.md` - Consolidated documentation
+- `migrations/versions/a907ccf90fad_add_bill_xml_fields.py` - Alembic migration
+- `db_setup/create_database.py` - Schema with 4 new bill columns
+
+**Next Actions**:
+1. Stop API server (if running)
+2. Run Alembic migration: `alembic upgrade head`
+3. Run scraper: `python scripts/extraction/bills/fetch_bill_xml.py`
+4. Expected: ~40-60% success rate (many old bills don't have XML)
+
+---
+
+## Previous Changes (2025-10-22)
 
 ### Senate Support & Comprehensive Bills Collection - COMPLETED ✅
 

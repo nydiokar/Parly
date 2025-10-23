@@ -1,9 +1,9 @@
 # Current State
 
-**Project**: Parly - Parliamentary Data API
-**Goal**: Build AI-powered parliamentary intelligence system for Canadian parliamentary data
-**Status**: Phase 1 - Data Foundation Complete (with historical data + Senate support)
-**Last Updated**: 2025-10-22 22:00 UTC
+**Project**: Parly - Parliamentary Data Visualization & Analysis
+**Goal**: Build data visualization platform for Canadian parliamentary data (32 years, 1993-2025)
+**Status**: Phase 0 - Data Pipeline Completion (before building frontend)
+**Last Updated**: 2025-10-23 21:00 UTC
 **Updated By**: Claude Sonnet 4.5
 
 ---
@@ -28,55 +28,57 @@
 - [x] Comprehensive bills scraper (ALL bills by parliament session, not by sponsor)
 - [x] Historical votes collection for all 1,701 members (118K+ votes)
 - [x] Historical bills collection for all parliaments 35-45 (7K+ bills)
+- [x] Bill XML scraper (fetches summaries + preambles for better analysis)
 
 ---
 
 ## Active
 
-**Current Task**: Phase 1 Complete - Ready for Analytics & AI Integration
+**Current Task**: Complete Data Pipeline Before Building Frontend
 
-- [x] Historical data collection COMPLETED
-- [x] Senate support fully implemented and tested
-- [x] Database contains 32 years of parliamentary history (1993-2025)
-- [ ] **NEXT**: Analytics API implementation (Phase 1.3)
-- [ ] **NEXT**: LLM integration for parliamentary intelligence (Phase 2)
+**What Changed** (2025-10-23):
+- Pivoted from "AI-powered intelligence" to "Data Visualization Platform"
+- Identified 5 components to build (funny findings, budget, bills, votes, petitions)
+- Discovered bill summaries available in XML (game changer!)
+- Discovered motion text available in Journal PDFs
+- Cleaned up 12 exploration documents
+- Created final roadmap and data sources documentation
+
+**Immediate Tasks**:
+- [x] **Build Bill XML Scraper** (get summaries for better analysis) - COMPLETED ✅
+- [ ] **Run Bill XML Migration & Scraper** (needs API stopped, ~2 hours runtime)
+- [ ] **Build Journal PDF Scraper** (get motion text for opposition votes)
+- [ ] **Update database schema** (add vote_motions table for journal data)
+- [ ] **THEN** build frontend visualizations
 
 ---
 
 ## Next
 
-### Phase 1.3: Analytics API (READY TO START)
+### Phase 0: Data Pipeline Completion (THIS WEEK)
 
-1. **Member Activity Metrics**
-   - Vote participation rates
-   - Bill sponsorship statistics
-   - Committee involvement tracking
-   - Timeline analysis
+**Missing Scrapers:**
+1. **Bill XML Scraper** (HIGH PRIORITY - 4-6 hours)
+   - Fetch bill summaries from XML
+   - Better topic extraction than titles alone
+   - Pattern: `/Bills/{parl}{sess}/{chamber}/C-{num}/C-{num}_1/C-{num}_E.xml`
 
-2. **Voting Pattern Analysis**
-   - Party line voting analysis
-   - Cross-party collaboration detection
-   - Issue-based voting clusters
-   - Voting history timelines
+2. **Journal PDF Scraper** (HIGH PRIORITY - 1-2 days)
+   - Fetch motion text for opposition votes
+   - Critical for vote stories component
+   - Pattern: `/House/{parl}{sess}/Journals/{sitting:03d}/Journal{sitting:03d}.PDF`
 
-3. **Bill Analytics**
-   - Success rate by sponsor type
-   - Bill progress stage analysis
-   - Topic categorization
-   - Chamber-specific metrics
+3. **Petition Scraper** (LOW PRIORITY - later)
+   - Fetch petition data
+   - Pattern: `/petitions/en/Petition/Search?parl=X&output=xml`
 
-### Phase 2: LLM Integration (PLANNED)
+### The 5 Components (12-week plan in FINAL_ROADMAP.md)
 
-1. **Parliamentary Intelligence API**
-   - Natural language queries for parliamentary data
-   - Member profile summaries
-   - Voting record explanations
-   - Bill impact analysis
-
-2. **Data Refresh Automation**
-   - Daily/weekly scrapers for new data
-   - Monitor for new members, votes, bills
-   - Incremental updates with change detection
+1. **General/Context** (Week 1-2) - Funny findings, 4-day week, party switchers
+2. **Budget Analysis** (Week 5-6) - Where money goes, party voting on spending
+3. **Bills Visualization** (Week 3-4) - What bills do, where they die
+4. **Vote Stories** (Week 7-8) - Opposition motions analysis
+5. **Petitions** (Week 11-12) - What people care about
 
 ---
 
@@ -140,10 +142,11 @@
 
 **Main Docs**:
 - README.md - Project overview
-- PROGRESS_LOG.md - Current work artifacts and recent changes
-- docs/ROADMAP.md - Strategic development roadmap
-- docs/IMPLEMENTATION_GUIDE.md - Complete implementation guide
-- docs/DATABASE_SCHEMA.md - Database structure
+- PROGRESS_LOG.md - Historical work log
+- docs/FINAL_ROADMAP.md - THE PLAN (5 components, 12 weeks)
+- docs/data/DATA_SOURCES.md - All data sources, URL patterns, scraper status
+- db_setup/url_templates.py - URL patterns for all data sources
+- docs/architecture/DATABASE_SCHEMA.md - Database structure
 
 **API Docs**: http://localhost:8000/docs (when running)
 

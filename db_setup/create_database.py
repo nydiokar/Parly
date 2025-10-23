@@ -127,10 +127,14 @@ class Bill(Base):
     session_number = Column(Integer)
     short_title = Column(String)  # Short title of the bill
     long_title = Column(Text)  # Full title of the bill
+    summary = Column(Text)  # Bill summary from XML
     status = Column(String)
     sponsor_id = Column(Integer, ForeignKey('members.member_id'), nullable=True)  # For MP sponsors
     senator_sponsor_id = Column(Integer, ForeignKey('senators.senator_id'), nullable=True)  # For Senator sponsors
+    sponsor_name = Column(String)  # Display name from XML (e.g., "Mr. Davies", "Sen. Smith")
     chamber = Column(String)
+    bill_type = Column(String)  # Bill type from XML: "government", "private-public", etc.
+    introduction_date = Column(Date)  # First reading date from XML
 
     # Relationships
     sponsor = relationship("Member", back_populates="bills")
