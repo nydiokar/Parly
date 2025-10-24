@@ -48,6 +48,13 @@ This README serves as the entry point to the comprehensive documentation suite. 
 - Deployment procedures (local and production)
 - Monitoring and maintenance tasks
 
+🔄 **[AUTOMATION_WORKFLOW.md](docs/development/AUTOMATION_WORKFLOW.md)**
+- Automated data collection and maintenance procedures
+- Real-time bill tracking and database updates
+- Cron job configurations and scheduling
+- Data completeness monitoring and alerts
+- Backup and recovery procedures
+
 ---
 
 ## Quick Start
