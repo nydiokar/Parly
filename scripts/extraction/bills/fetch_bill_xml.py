@@ -338,8 +338,13 @@ def fetch_and_update_bill_summary(session, bill, stats):
         updated = True
 
     if parsed_data.get('introduction_date'):
-        bill.introduction_date = parsed_data['introduction_date']
-        updated = True
+        # Convert date string to Python date object for SQLAlchemy
+        try:
+            bill.introduction_date = datetime.strptime(parsed_data['introduction_date'], '%Y-%m-%d').date()
+            updated = True
+        except ValueError as e:
+            logger.warning(f"Invalid date format for bill {bill.bill_number}: {parsed_data['introduction_date']} - {e}")
+            # Keep the old date or set to None if invalid
 
     if updated:
         stats.total_summaries_updated += 1

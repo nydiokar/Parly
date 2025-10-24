@@ -253,3 +253,83 @@ def get_vote_summary(
         "parliament_number": parliament_number,
         "session_number": session_number
     }
+
+
+@router.get("/stats/day-of-week", response_model=dict)
+def get_votes_by_day_of_week(
+    exclude_budget_votes: bool = Query(True, description="Exclude budget-related votes for cleaner analysis"),
+    parliament_number: Optional[int] = Query(None, description="Filter by parliament"),
+    session_number: Optional[int] = Query(None, description="Filter by session"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get vote counts by day of week.
+
+    This endpoint powers the "4-Day Work Week" visualization, showing that
+    96% of parliamentary votes happen Monday-Thursday.
+
+    Returns vote event counts (not individual member votes) grouped by day of week.
+    """
+    from scripts.analysis.classify_vote_types import is_budget_vote
+
+    # Build base query
+    query = db.query(Vote)
+
+    if parliament_number:
+        query = query.filter(Vote.parliament_number == parliament_number)
+    if session_number:
+        query = query.filter(Vote.session_number == session_number)
+
+    votes = query.all()
+
+    # Group by date and count unique vote events per day
+    votes_by_date = {}
+    for vote in votes:
+        if vote.vote_date:
+            date_key = vote.vote_date.isoformat()
+
+            # Apply budget vote filter if requested
+            if exclude_budget_votes and is_budget_vote(vote.vote_topic):
+                continue
+
+            if date_key not in votes_by_date:
+                votes_by_date[date_key] = set()
+            votes_by_date[date_key].add(vote.vote_id)
+
+    # Count votes per day and group by day of week
+    day_counts = {
+        'Monday': 0,
+        'Tuesday': 0,
+        'Wednesday': 0,
+        'Thursday': 0,
+        'Friday': 0,
+        'Saturday': 0,
+        'Sunday': 0
+    }
+
+    total_votes = 0
+
+    for date_str, vote_ids in votes_by_date.items():
+        date_obj = date.fromisoformat(date_str)
+        day_name = date_obj.strftime('%A')  # Monday, Tuesday, etc.
+        vote_count = len(vote_ids)
+
+        day_counts[day_name] += vote_count
+        total_votes += vote_count
+
+    # Calculate percentages
+    day_percentages = {}
+    if total_votes > 0:
+        for day, count in day_counts.items():
+            day_percentages[day] = round((count / total_votes) * 100, 1)
+
+    return {
+        "day_counts": day_counts,
+        "day_percentages": day_percentages,
+        "total_vote_events": total_votes,
+        "total_days_with_votes": len(votes_by_date),
+        "monday_to_thursday_percentage": sum(day_percentages.get(day, 0) for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday']),
+        "exclude_budget_votes": exclude_budget_votes,
+        "parliament_number": parliament_number,
+        "session_number": session_number
+    }

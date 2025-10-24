@@ -36,6 +36,15 @@ wheels/
 *.sublime-workspace
 *.sublime-project
 
+# Frontend (Next.js)
+node_modules/
+.next/
+out/
+.next-env.d.ts
+.vercel/
+.swc/
+*.tsbuildinfo
+
 # Database
 *.db
 *.sqlite3
@@ -72,6 +81,24 @@ downloads/
 eggs/
 .eggs/
 lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
 lib64/
 parts/
 sdist/
